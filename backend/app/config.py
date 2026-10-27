@@ -18,24 +18,45 @@ class Settings:
     PROJECT_ROOT: Path = BACKEND_DIR.parent
     
     # Data directories (compatible with Vercel serverless /tmp write restrictions)
-    is_vercel: bool = bool(os.getenv("VERCEL"))
-    if is_vercel:
-        _tmp_base = Path("/tmp") / "crimevision"
-        _tmp_base.mkdir(parents=True, exist_ok=True)
-        DATABASE_PATH: Path = _tmp_base / "forensic_data.db"
-        _bundled_db = BACKEND_DIR / "forensic_data.db"
-        if _bundled_db.exists() and not DATABASE_PATH.exists():
-            import shutil
-            try:
-                shutil.copyfile(_bundled_db, DATABASE_PATH)
-            except Exception:
-                pass
-        UPLOAD_DIR: Path = _tmp_base / "uploads"
-        REPORT_DIR: Path = _tmp_base / "reports"
-    else:
-        DATABASE_PATH: Path = BACKEND_DIR / "forensic_data.db"
-        UPLOAD_DIR: Path = BACKEND_DIR / "uploads"
-        REPORT_DIR: Path = BACKEND_DIR / "reports"
+    @property
+    def is_vercel(self) -> bool:
+        return bool(os.getenv("VERCEL")) or os.getenv("AWS_LAMBDA_FUNCTION_NAME") is not None
+
+    @property
+    def DATABASE_PATH(self) -> Path:
+        if self.is_vercel:
+            return Path("/tmp") / "crimevision" / "forensic_data.db"
+        DATABASE_PATH: Path = self.BACKEND_DIR / "forensic_data.db"
+        return DATABASE_PATH
+
+    @property
+    def UPLOAD_DIR(self) -> Path:
+        if self.is_vercel:
+            return Path("/tmp") / "crimevision" / "uploads"
+        UPLOAD_DIR: Path = self.BACKEND_DIR / "uploads"
+        return UPLOAD_DIR
+
+    @property
+    def REPORT_DIR(self) -> Path:
+        if self.is_vercel:
+            return Path("/tmp") / "crimevision" / "reports"
+        REPORT_DIR: Path = self.BACKEND_DIR / "reports"
+        return REPORT_DIR
+
+    def ensure_storage_directories(self):
+        self.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        self.REPORT_DIR.mkdir(parents=True, exist_ok=True)
+        if self.is_vercel:
+            target_db = self.DATABASE_PATH
+            target_db.parent.mkdir(parents=True, exist_ok=True)
+            bundled_db = self.BACKEND_DIR / "forensic_data.db"
+            if bundled_db.exists() and not target_db.exists():
+                import shutil
+                try:
+                    shutil.copyfile(bundled_db, target_db)
+                except Exception:
+                    pass
+
     SAMPLE_DATA_DIR: Path = PROJECT_ROOT / "sample_data"
     
     # Gemini AI Configuration
@@ -51,7 +72,5 @@ class Settings:
 
 settings = Settings()
 
-# Ensure required directories exist
-settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-settings.REPORT_DIR.mkdir(parents=True, exist_ok=True)
+settings.ensure_storage_directories()
 settings.SAMPLE_DATA_DIR.mkdir(parents=True, exist_ok=True)

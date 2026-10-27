@@ -5,6 +5,8 @@ from typing import List, Dict, Any, Optional
 from .config import settings
 
 def get_db_connection():
+    # Ensure parent directory is writable on serverless /tmp
+    settings.ensure_storage_directories()
     conn = sqlite3.connect(str(settings.DATABASE_PATH), check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
