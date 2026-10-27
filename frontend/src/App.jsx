@@ -28,9 +28,12 @@ export default function App() {
         if (res.ok) {
           const data = await res.json();
           setHealthInfo(data);
+        } else {
+          setHealthInfo({ status: 'error', gemini_mode: 'mock_sandbox', gemini_api_key_configured: false });
         }
       } catch (err) {
         console.warn('Backend service offline or booting:', err);
+        setHealthInfo({ status: 'error', gemini_mode: 'mock_sandbox', gemini_api_key_configured: false });
       }
     };
 

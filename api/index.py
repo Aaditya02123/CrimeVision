@@ -1,9 +1,20 @@
 import sys
 import os
+from pathlib import Path
 
-# Add backend to module search path
-backend_dir = os.path.join(os.path.dirname(__file__), "..", "backend")
-if backend_dir not in sys.path:
-    sys.path.insert(0, backend_dir)
+# Add backend directory to sys.path
+root_dir = Path(__file__).resolve().parent.parent
+backend_dir = root_dir / "backend"
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
 
-from main import app, application, handler
+# Ensure required writable directories exist in serverless /tmp
+tmp_base = Path("/tmp") / "crimevision"
+try:
+    tmp_base.mkdir(parents=True, exist_ok=True)
+    (tmp_base / "uploads").mkdir(parents=True, exist_ok=True)
+    (tmp_base / "reports").mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
+
+from app.main import app, application, handler

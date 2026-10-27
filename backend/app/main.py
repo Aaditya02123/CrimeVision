@@ -80,10 +80,14 @@ def root():
 
 @app.get("/api/health")
 @app.get("/health")
+@app.get("/api/v1/health")
 def health_check():
+    # Dynamically read current active state to account for cold lambdas or runtime injected envs
+    api_key_set = bool(os.getenv("GEMINI_API_KEY", "").strip())
+    is_live = api_key_set and not settings.FORCE_MOCK and not os.getenv("GEMINI_API_KEY", "").startswith("mock")
     return {
         "status": "healthy",
         "database": "sqlite3 connected",
-        "gemini_mode": "live" if settings.is_gemini_active else "mock_sandbox",
-        "gemini_api_key_configured": settings.is_gemini_active
+        "gemini_mode": "live" if is_live else "mock_sandbox",
+        "gemini_api_key_configured": is_live
     }
