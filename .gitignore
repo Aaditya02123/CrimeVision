@@ -4,45 +4,52 @@ frontend/node_modules/
 .venv/
 env/
 venv/
+ENV/
 
 # Python Cache & Bytecode
 __pycache__/
-*/__pycache__/
-backend/__pycache__/
-backend/app/__pycache__/
-backend/app/routers/__pycache__/
-backend/app/services/__pycache__/
 *.py[cod]
 *$py.class
+*.pyd
 
 # Environment variables & secrets
 .env
-backend/.env
-uploads
-reports
+.env.*
 !.env.example
+backend/.env
+backend/.env.*
 !backend/.env.example
 
-# Build outputs
+# Build & Deployment Outputs
 dist/
 build/
 frontend/dist/
+.vercel/
 
-# Legacy / Old Streamlit UI
+# Runtime Storage & Dynamic Artifacts
+# Note: Root sample_data/ and backend/forensic_data.db are tracked as baseline seeds
+uploads/
+backend/uploads/
+reports/
+backend/reports/
+*.sqlite3-journal
+*.db-journal
+
+# Logs & Debugging
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Legacy / Non-production files
 .streamlit/
 streamlit_app.py
 styles.css
 run_streamlit.bat
 CrimeVisionAI/
 
-# Generated Reports & Runtime artifacts
-backend/reports/*.pdf
-*.log
-npm-debug.log*
-yarn-debug.log*
-
-# OS / Editor metadata
+# OS & Editor Metadata
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+*.swp
