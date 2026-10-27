@@ -10,10 +10,12 @@ logger = logging.getLogger(__name__)
 class GeminiService:
     def __init__(self):
         self._client = None
-        self._init_client()
-        
-    def _init_client(self):
-        if settings.is_gemini_active:
+
+    def get_client(self):
+        """Lazily initialize or return Gemini client to catch dynamic environment variable injection."""
+        if not settings.is_gemini_active:
+            return None
+        if self._client is None:
             try:
                 from google import genai
                 self._client = genai.Client(api_key=settings.GEMINI_API_KEY)
@@ -21,14 +23,11 @@ class GeminiService:
             except Exception as e:
                 logger.warning(f"Failed to initialize Gemini Client: {e}. Fallback to mock mode.")
                 self._client = None
-        else:
-            self._client = None
-            logger.info("Gemini API key not configured or mock mode enabled. Operating with forensic sandbox generators.")
+        return self._client
 
     @property
     def is_available(self) -> bool:
-        return self._client is not None
-
+        return self.get_client() is not None
     def analyze_image(self, file_bytes: bytes, mime_type: str, filename: str, case_id: str) -> Dict[str, Any]:
         """Analyzes crime scene image using Gemini Vision or falls back to mock generator."""
         if not self.is_available:

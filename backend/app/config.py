@@ -60,15 +60,22 @@ class Settings:
     SAMPLE_DATA_DIR: Path = PROJECT_ROOT / "sample_data"
     
     # Gemini AI Configuration
-    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "").strip()
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash").strip()
-    
-    # Mock / Sandbox fallback mode
-    FORCE_MOCK: bool = os.getenv("FORCE_MOCK", "false").lower() in ("true", "1", "yes")
+    @property
+    def GEMINI_API_KEY(self) -> str:
+        return os.getenv("GEMINI_API_KEY", "").strip()
 
     @property
+    def GEMINI_MODEL(self) -> str:
+        return os.getenv("GEMINI_MODEL", "gemini-1.5-flash").strip()
+
+    @property
+    def FORCE_MOCK(self) -> bool:
+        return os.getenv("FORCE_MOCK", "false").lower() in ("true", "1", "yes")
+    
+    @property
     def is_gemini_active(self) -> bool:
-        return bool(self.GEMINI_API_KEY) and not self.FORCE_MOCK and not self.GEMINI_API_KEY.startswith("mock")
+        key = self.GEMINI_API_KEY
+        return bool(key) and not self.FORCE_MOCK and not key.startswith("mock")
 
 settings = Settings()
 

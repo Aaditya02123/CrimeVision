@@ -25,11 +25,20 @@ from .routers import image, audio, video, fusion, chat, report, cases
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize SQLite tables and default seed data on startup
-    init_db()
-    ensure_synthetic_keyframes()
+    try:
+        # Initialize SQLite tables and default seed data on startup
+        init_db()
+        ensure_synthetic_keyframes()
+    except Exception as e:
+        print(f"Lifespan initialization warning: {e}")
     yield
 
+try:
+    # Also eagerly initialize immediately at module load time for environments where lifespan doesn't run
+    init_db()
+    ensure_synthetic_keyframes()
+except Exception as e:
+    print(f"Module-level initialization warning: {e}")
 app = FastAPI(
     title="CrimeVision AI – Intelligent Multimodal Forensic Analysis Platform",
     description="REST backend for multimodal forensic intelligence using FastAPI, SQLite, and Google Gemini AI.",
@@ -51,12 +60,15 @@ app.add_middleware(
 )
 
 # Mount local upload directory and static keyframes for preview access
-keyframes_dir = settings.UPLOAD_DIR / "keyframes"
-keyframes_dir.mkdir(parents=True, exist_ok=True)
-if settings.UPLOAD_DIR.exists():
-    app.mount("/uploads", StaticFiles(directory=str(settings.UPLOAD_DIR)), name="uploads")
-if keyframes_dir.exists():
-    app.mount("/static", StaticFiles(directory=str(keyframes_dir)), name="static")
+try:
+    keyframes_dir = settings.UPLOAD_DIR / "keyframes"
+    keyframes_dir.mkdir(parents=True, exist_ok=True)
+    if settings.UPLOAD_DIR.exists():
+        app.mount("/uploads", StaticFiles(directory=str(settings.UPLOAD_DIR)), name="uploads")
+    if keyframes_dir.exists():
+        app.mount("/static", StaticFiles(directory=str(keyframes_dir)), name="static")
+except Exception as e:
+    print(f"StaticFiles mount warning: {e}")
 
 # Register API v1 Routers
 app.include_router(image.router, prefix=settings.API_V1_PREFIX)
