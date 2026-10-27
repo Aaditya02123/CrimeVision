@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+.venv/
+env/
+venv/
+
+# Python Cache & Bytecode
+__pycache__/
+*/__pycache__/
+backend/__pycache__/
+backend/app/__pycache__/
+backend/app/routers/__pycache__/
+backend/app/services/__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables & secrets
+.env
+backend/.env
+uploads
+reports
+!.env.example
+!backend/.env.example
+
+# Build outputs
+dist/
+build/
+frontend/dist/
+
+# Legacy / Old Streamlit UI
+.streamlit/
+streamlit_app.py
+styles.css
+run_streamlit.bat
+CrimeVisionAI/
+
+# Generated Reports & Runtime artifacts
+backend/reports/*.pdf
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS / Editor metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,21 @@
+/* CrimeVision Tactical Styling */
+.tactical-border {
+  border: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+.tactical-glow {
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
+}
+
+.threat-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
