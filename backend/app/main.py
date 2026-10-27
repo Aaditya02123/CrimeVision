@@ -51,10 +51,12 @@ app.add_middleware(
 )
 
 # Mount local upload directory and static keyframes for preview access
-app.mount("/uploads", StaticFiles(directory=str(settings.UPLOAD_DIR)), name="uploads")
 keyframes_dir = settings.UPLOAD_DIR / "keyframes"
 keyframes_dir.mkdir(parents=True, exist_ok=True)
-app.mount("/static", StaticFiles(directory=str(keyframes_dir)), name="static")
+if settings.UPLOAD_DIR.exists():
+    app.mount("/uploads", StaticFiles(directory=str(settings.UPLOAD_DIR)), name="uploads")
+if keyframes_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(keyframes_dir)), name="static")
 
 # Register API v1 Routers
 app.include_router(image.router, prefix=settings.API_V1_PREFIX)
